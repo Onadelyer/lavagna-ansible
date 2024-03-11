@@ -23,7 +23,7 @@
       when: ansible_os_family == "RedHat"
 
     - name: Initialize PostgreSQL database
-      command: /usr/bin/postgresql-{{ postgres_version }}-setup initdb
+      command: /usr/bin/postgresql-setup initdb
       when: ansible_os_family == "RedHat"
       notify:
         - restart postgresql
