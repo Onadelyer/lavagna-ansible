@@ -14,16 +14,23 @@
         name: "java-{{ java_version }}-openjdk-devel"
         state: present
 
-    - name: Install Maven
+    - name: Download Maven
       get_url:
         url: "https://archive.apache.org/dist/maven/maven-3/{{ maven_version }}/binaries/apache-maven-{{ maven_version }}-bin.tar.gz"
         dest: "/tmp/apache-maven-{{ maven_version }}-bin.tar.gz"
+
+    - name: Extract Maven
       unarchive:
         src: "/tmp/apache-maven-{{ maven_version }}-bin.tar.gz"
         dest: "/opt"
         remote_src: yes
+
+    - name: Set Maven Path
       shell: 'echo "export PATH=/opt/apache-maven-{{ maven_version }}/bin:$PATH" >> ~/.bashrc'
+      args:
+        executable: /bin/bash
       become: yes
+
 
     - name: Install Git
       yum:
