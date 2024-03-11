@@ -3,7 +3,7 @@
   hosts: all
   become: yes
   vars:
-    postgres_version: "12"
+    postgres_version: "13"
     postgres_listen_addresses: "'*'"
     db_user: "myuser"
     db_password: "mypassword"
