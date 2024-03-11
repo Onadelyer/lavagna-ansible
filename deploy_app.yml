@@ -45,7 +45,7 @@
         update: yes
 
     - name: Build the application with Maven
-      shell: mvn package
+      shell: /opt/apache-maven-{{ maven_version }}/bin/mvn package
       args:
         chdir: "{{ project_dir }}"
 
