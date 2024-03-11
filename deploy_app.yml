@@ -1,6 +1,6 @@
 ---
 - name: Setup application environment on Oracle Linux
-  hosts: your_host_group_or_hostname
+  hosts: webservers
   become: yes
   vars:
     java_version: "1.8.0"
