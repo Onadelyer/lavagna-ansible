@@ -1,0 +1,6 @@
+all:
+  children:
+    webservers:
+      hosts:
+        deploy_env1:
+          ansible_host: 10.26.0.134
