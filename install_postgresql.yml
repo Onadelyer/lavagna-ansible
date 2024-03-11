@@ -1,6 +1,6 @@
 ---
 - name: Setup PostgreSQL Database
-  hosts: your_host_group_or_hostname
+  hosts: webservers
   become: yes
   vars:
     postgresql_databases:
