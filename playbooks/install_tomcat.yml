@@ -1,4 +1,4 @@
-- hosts: servers
+- hosts: webservers
   become: true
   vars:
     tomcat_version: 8.5.23
