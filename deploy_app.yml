@@ -1,0 +1,48 @@
+---
+- name: Setup application environment on Oracle Linux
+  hosts: your_host_group_or_hostname
+  become: yes
+  vars:
+    java_version: "1.8.0"
+    maven_version: "3.6.3"
+    git_repo: "https://github.com/Onadelyer/lavagna.git"
+    project_dir: "/opt/lavagna"
+
+  tasks:
+    - name: Install Java 8
+      yum:
+        name: "java-{{ java_version }}-openjdk-devel"
+        state: present
+
+    - name: Install Maven
+      get_url:
+        url: "https://archive.apache.org/dist/maven/maven-3/{{ maven_version }}/binaries/apache-maven-{{ maven_version }}-bin.tar.gz"
+        dest: "/tmp/apache-maven-{{ maven_version }}-bin.tar.gz"
+      unarchive:
+        src: "/tmp/apache-maven-{{ maven_version }}-bin.tar.gz"
+        dest: "/opt"
+        remote_src: yes
+      shell: 'echo "export PATH=/opt/apache-maven-{{ maven_version }}/bin:$PATH" >> ~/.bashrc'
+      become: yes
+
+    - name: Install Git
+      yum:
+        name: git
+        state: present
+
+    - name: Clone application repository
+      git:
+        repo: "{{ git_repo }}"
+        dest: "{{ project_dir }}"
+        clone: yes
+        update: yes
+
+    - name: Build the application with Maven
+      shell: mvn package
+      args:
+        chdir: "{{ project_dir }}"
+
+    - name: Deploy the application
+      shell: nohup java -jar {{ project_dir }}/target/yourapplication.jar > /dev/null 2>&1 &
+      async: 10
+      poll: 0
