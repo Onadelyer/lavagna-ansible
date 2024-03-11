@@ -49,7 +49,7 @@
       args:
         chdir: "{{ project_dir }}"
 
-    - name: Deploy the application
-      shell: nohup java -Ddatasource.dialect=PGSQL -Ddatasource.url=jdbc:postgresql://localhost:5432/lavagna -Ddatasource.username=myuser -Ddatasource.password=mypassword -Dspring.profile.active=dev -jar {{ project_dir }}/target/lavagna-jetty-console.war > /dev/null 2>&1 &
-      async: 10
-      poll: 0
+    # - name: Deploy the application
+    #   shell: nohup java -Ddatasource.dialect=PGSQL -Ddatasource.url=jdbc:postgresql://localhost:5432/lavagna -Ddatasource.username=myuser -Ddatasource.password=mypassword -Dspring.profile.active=dev -jar {{ project_dir }}/target/lavagna-jetty-console.war > /dev/null 2>&1 &
+    #   async: 10
+    #   poll: 0
