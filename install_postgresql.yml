@@ -1,79 +1,12 @@
 ---
-- name: Install, configure, and secure PostgreSQL
-  hosts: all
+- name: Setup PostgreSQL Database
+  hosts: your_host_group_or_hostname
   become: yes
   vars:
-    postgres_version: "13"
-    postgres_listen_addresses: "'*'"
-    db_user: "myuser"
-    db_password: "mypassword"
-    db_name: "lavagna"
-
-  tasks:
-    # - name: Update DNF package index
-    #   ansible.builtin.dnf:
-    #     name: "*"
-    #     state: latest
-    #   when: ansible_os_family == "RedHat"
-
-    - name: Install PostgreSQL
-      ansible.builtin.dnf:
-        name: "postgresql-server"
-        state: present
-      when: ansible_os_family == "RedHat"
-
-    - name: Initialize PostgreSQL database
-      command: /usr/bin/postgresql-setup initdb
-      when: ansible_os_family == "RedHat"
-      notify:
-        - restart postgresql
-
-    - name: Ensure PostgreSQL is running and enabled
-      ansible.builtin.service:
-        name: postgresql
-        state: started
-        enabled: yes
-      when: ansible_os_family == "RedHat"
-
-    - name: Set PostgreSQL to listen on all addresses
-      ansible.builtin.lineinfile:
-        path: "/var/lib/pgsql/data/postgresql.conf"
-        regexp: '^#listen_addresses ='
-        line: "listen_addresses = {{ postgres_listen_addresses }}"
-        state: present
-      notify:
-        - restart postgresql
-      when: ansible_os_family == "RedHat"
-
-    - name: Allow remote connections to PostgreSQL
-      ansible.builtin.lineinfile:
-        path: "/var/lib/pgsql/data/pg_hba.conf"
-        line: "host all all 0.0.0.0/0 md5"
-        state: present
-      notify:
-        - restart postgresql
-      when: ansible_os_family == "RedHat"
-
-    - name: Create a database user
-      community.postgresql.postgresql_user:
-        db: postgres
-        name: "{{ db_user }}"
-        password: "{{ db_password }}"
-        priv: ALL
-        expires: never
-        state: present
-      when: ansible_os_family == "RedHat"
-
-    - name: Create a database
-      community.postgresql.postgresql_db:
-        name: "{{ db_name }}"
-        owner: "{{ db_user }}"
-        state: present
-      when: ansible_os_family == "RedHat"
-
-  handlers:
-    - name: restart postgresql
-      ansible.builtin.service:
-        name: postgresql
-        state: restarted
-        enabled: yes
+    postgresql_databases:
+      - name: lavagna
+    postgresql_users:
+      - name: myuser
+        password: mypassword
+  roles:
+    - role: geerlingguy.postgresql
