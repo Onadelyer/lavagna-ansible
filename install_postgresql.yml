@@ -1,0 +1,66 @@
+---
+- name: Install, configure, and secure PostgreSQL
+  hosts: all
+  become: yes
+  vars:
+    postgres_version: "12"
+    postgres_listen_addresses: "'*'"
+    db_user: "myuser"
+    db_password: "mypassword"
+    db_name: "mydatabase"
+
+  tasks:
+    - name: Update APT package index
+      ansible.builtin.apt:
+        update_cache: yes
+        cache_valid_time: 3600 # 1 hour
+
+    - name: Install PostgreSQL
+      ansible.builtin.apt:
+        name: "postgresql-{{ postgres_version }}"
+        state: present
+
+    - name: Ensure PostgreSQL is running
+      ansible.builtin.service:
+        name: postgresql
+        state: started
+        enabled: yes
+
+    - name: Set PostgreSQL to listen on all addresses
+      ansible.builtin.lineinfile:
+        path: "/etc/postgresql/{{ postgres_version }}/main/postgresql.conf"
+        regexp: '^#listen_addresses ='
+        line: "listen_addresses = {{ postgres_listen_addresses }}"
+        state: present
+      notify:
+        - restart postgresql
+
+    - name: Allow remote connections to PostgreSQL
+      ansible.builtin.lineinfile:
+        path: "/etc/postgresql/{{ postgres_version }}/main/pg_hba.conf"
+        line: "host all all 0.0.0.0/0 md5"
+        state: present
+      notify:
+        - restart postgresql
+
+    - name: Create a database user
+      community.postgresql.postgresql_user:
+        db: postgres
+        name: "{{ db_user }}"
+        password: "{{ db_password }}"
+        priv: ALL
+        expires: never
+        state: present
+
+    - name: Create a database
+      community.postgresql.postgresql_db:
+        name: "{{ db_name }}"
+        owner: "{{ db_user }}"
+        state: present
+
+  handlers:
+    - name: restart postgresql
+      ansible.builtin.service:
+        name: postgresql
+        state: restarted
+        enabled: yes
