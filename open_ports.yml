@@ -1,0 +1,11 @@
+---
+- name: Open Port 8080
+  hosts: all
+  become: yes
+  tasks:
+    - name: Open port 8080/tcp
+      ansible.builtin.firewalld:
+        port: 8080/tcp
+        permanent: true
+        state: enabled
+        immediate: true
