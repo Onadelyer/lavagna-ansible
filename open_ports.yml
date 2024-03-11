@@ -4,7 +4,9 @@
   become: yes
   tasks:
     - name: Open port 8080/tcp
-      ansible.posix.firewalld:
+      firewalld:
         port: 8080/tcp
         permanent: true
         state: enabled
+        immediate: true
+        zone: public
