@@ -37,7 +37,7 @@
 
     - name: Set PostgreSQL to listen on all addresses
       ansible.builtin.lineinfile:
-        path: "/var/lib/pgsql/{{ postgres_version }}/data/postgresql.conf"
+        path: "/var/lib/pgsql/data/postgresql.conf"
         regexp: '^#listen_addresses ='
         line: "listen_addresses = {{ postgres_listen_addresses }}"
         state: present
@@ -47,7 +47,7 @@
 
     - name: Allow remote connections to PostgreSQL
       ansible.builtin.lineinfile:
-        path: "/var/lib/pgsql/{{ postgres_version }}/data/pg_hba.conf"
+        path: "/var/lib/pgsql/data/pg_hba.conf"
         line: "host all all 0.0.0.0/0 md5"
         state: present
       notify:
