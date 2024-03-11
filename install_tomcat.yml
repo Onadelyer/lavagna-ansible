@@ -1,0 +1,17 @@
+---
+- name: Install Tomcat
+  hosts: all
+  become: yes
+  gather_facts: yes
+
+  vars:
+    tomcat_instances:
+      - name: "tomcat"
+        version: 9
+        shutdown_port: 8005
+        non_ssl_connector_port: 8080
+        ssl_connector_port: 8443
+        ajp_port: 8009
+
+  roles:
+    - role: robertdebock.tomcat

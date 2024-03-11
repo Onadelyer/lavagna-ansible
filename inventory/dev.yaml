@@ -1,5 +1,0 @@
-all:
-  children:
-    webservers:
-      hosts:
-        10.26.0.134:
