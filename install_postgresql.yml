@@ -10,38 +10,49 @@
     db_name: "lavagna"
 
   tasks:
-    - name: Update APT package index
-      ansible.builtin.apt:
-        update_cache: yes
-        cache_valid_time: 3600 # 1 hour
+    - name: Update DNF package index
+      ansible.builtin.dnf:
+        name: "*"
+        state: latest
+      when: ansible_os_family == "RedHat"
 
     - name: Install PostgreSQL
-      ansible.builtin.apt:
-        name: "postgresql-{{ postgres_version }}"
+      ansible.builtin.dnf:
+        name: "postgresql-server"
         state: present
+      when: ansible_os_family == "RedHat"
 
-    - name: Ensure PostgreSQL is running
+    - name: Initialize PostgreSQL database
+      command: /usr/bin/postgresql-{{ postgres_version }}-setup initdb
+      when: ansible_os_family == "RedHat"
+      notify:
+        - restart postgresql
+
+    - name: Ensure PostgreSQL is running and enabled
       ansible.builtin.service:
         name: postgresql
         state: started
         enabled: yes
+      when: ansible_os_family == "RedHat"
 
     - name: Set PostgreSQL to listen on all addresses
       ansible.builtin.lineinfile:
-        path: "/etc/postgresql/{{ postgres_version }}/main/postgresql.conf"
+        path: "/var/lib/pgsql/{{ postgres_version }}/data/postgresql.conf"
         regexp: '^#listen_addresses ='
         line: "listen_addresses = {{ postgres_listen_addresses }}"
         state: present
       notify:
         - restart postgresql
+      when: ansible_os_family == "RedHat"
 
     - name: Allow remote connections to PostgreSQL
       ansible.builtin.lineinfile:
-        path: "/etc/postgresql/{{ postgres_version }}/main/pg_hba.conf"
+        path: "/var/lib/pgsql/{{ postgres_version }}/data/pg_hba.conf"
         line: "host all all 0.0.0.0/0 md5"
         state: present
       notify:
         - restart postgresql
+      when: ansible_os_family == "RedHat"
 
     - name: Create a database user
       community.postgresql.postgresql_user:
@@ -51,12 +62,14 @@
         priv: ALL
         expires: never
         state: present
+      when: ansible_os_family == "RedHat"
 
     - name: Create a database
       community.postgresql.postgresql_db:
         name: "{{ db_name }}"
         owner: "{{ db_user }}"
         state: present
+      when: ansible_os_family == "RedHat"
 
   handlers:
     - name: restart postgresql
