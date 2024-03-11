@@ -10,11 +10,11 @@
     db_name: "lavagna"
 
   tasks:
-    - name: Update DNF package index
-      ansible.builtin.dnf:
-        name: "*"
-        state: latest
-      when: ansible_os_family == "RedHat"
+    # - name: Update DNF package index
+    #   ansible.builtin.dnf:
+    #     name: "*"
+    #     state: latest
+    #   when: ansible_os_family == "RedHat"
 
     - name: Install PostgreSQL
       ansible.builtin.dnf:
